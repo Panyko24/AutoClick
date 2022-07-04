@@ -4,4 +4,4 @@
     android:accessibilityFeedbackType="feedbackAllMask"
     android:canPerformGestures="true"
     android:canRetrieveWindowContent="true"
-    android:description="自动点击器" />
+    android:description="@string/app_name" />

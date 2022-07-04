@@ -2,6 +2,7 @@ package com.panyko.autoclick.view;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
+import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
 import android.util.DisplayMetrics;
@@ -15,6 +16,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 
 import com.panyko.autoclick.R;
+import com.panyko.autoclick.service.AutoClickService;
+import com.panyko.autoclick.util.CommonCode;
 
 public class FloatingView implements View.OnTouchListener {
     private Context context;
@@ -68,6 +71,18 @@ public class FloatingView implements View.OnTouchListener {
                 isBtnActivated = !isBtnActivated;
                 btnAutoClick.setActivated(isBtnActivated);
                 btnSight.setActivated(isBtnActivated);
+                Intent intent = new Intent(context, AutoClickService.class);
+                if (isBtnActivated) {
+                    int[] location = new int[2];
+                    btnSight.getLocationOnScreen(location);
+                    intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_START);
+                    intent.putExtra("interval", 500);
+                    intent.putExtra("pointX", location[0] - 1);
+                    intent.putExtra("pointY", location[1] - 1);
+                } else {
+                    intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_STOP);
+                }
+                context.startService(intent);
             }
         });
 
@@ -75,7 +90,7 @@ public class FloatingView implements View.OnTouchListener {
 
     @Override
     public boolean onTouch(View v, MotionEvent event) {
-        if (mWindowManager != null) {
+        if (mWindowManager != null && !isBtnActivated) {
             switch (event.getAction()) {
                 case MotionEvent.ACTION_DOWN:
                     x = (int) event.getRawX();
@@ -124,6 +139,9 @@ public class FloatingView implements View.OnTouchListener {
      */
     public void dismiss() {
         if (mIsShow) {
+            Intent intent = new Intent(context, AutoClickService.class);
+            intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_STOP);
+            context.startService(intent);
             mWindowManager.removeView(autoClickView);
             mWindowManager.removeView(sightView);
             mIsShow = false;

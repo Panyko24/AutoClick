@@ -1,5 +1,6 @@
 package com.panyko.autoclick;
 
+import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.ComponentName;
@@ -27,7 +28,7 @@ public class MainActivity extends AppCompatActivity {
 
     public void showFloatingView(View view) {
         if (!Settings.canDrawOverlays(this)) {
-            startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName")), 0);
+            startActivityForResult(new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:" + getPackageName())), 0);
         } else {
             if (!isServiceBind) {
                 isServiceBind = bindService(floatingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
@@ -35,10 +36,22 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == 0) {
+            if (Settings.canDrawOverlays(this)) {
+                if (!isServiceBind) {
+                    isServiceBind = bindService(floatingIntent, serviceConnection, Context.BIND_AUTO_CREATE);
+                }
+            }
+        }
+    }
+
     public void closeFloatingView(View view) {
         if (isServiceBind) {
             unbindService(serviceConnection);
-            isServiceBind=false;
+            isServiceBind = false;
         }
     }
 
@@ -56,4 +69,8 @@ public class MainActivity extends AppCompatActivity {
     };
 
 
+    public void checkAccessibility(View view) {
+        Intent intent=new Intent(Settings.ACTION_ACCESSIBILITY_SETTINGS);
+        startActivity(intent);
+    }
 }
