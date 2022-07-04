@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".MainActivity">
+
+
+    <Button
+        android:id="@+id/btn_show_floating"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:text="开启悬浮窗"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="showFloatingView"/>
+    <Button
+        android:id="@+id/btn_close_floating"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_show_floating"
+        android:text="关闭悬浮窗"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:onClick="closeFloatingView"/>
+</androidx.constraintlayout.widget.ConstraintLayout>
