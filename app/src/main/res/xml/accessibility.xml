@@ -3,5 +3,6 @@
     android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFeedbackType="feedbackAllMask"
     android:canPerformGestures="true"
+    android:settingsActivity="com.panyko.autoclick.activity.SettingActivity"
     android:canRetrieveWindowContent="true"
     android:description="@string/app_name" />

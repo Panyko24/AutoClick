@@ -10,13 +10,18 @@
         android:roundIcon="@mipmap/icon_app_logo"
         android:supportsRtl="true"
         android:theme="@style/Theme.AutoClick">
-        <activity android:name=".MainActivity">
+        <activity android:name=".activity.MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".activity.SettingActivity"
+            android:theme="@style/dialog_style"
+            />
 
         <service android:name=".service.FloatingService" />
 

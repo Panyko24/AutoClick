@@ -9,6 +9,7 @@ import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
 import com.panyko.autoclick.util.CommonCode;
+import com.panyko.autoclick.util.CommonData;
 
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
@@ -18,7 +19,6 @@ public class AutoClickService extends AccessibilityService {
     private static final String TAG = "AutoClickService";
     private int mPointX;
     private int mPointY;
-    private int mInterval;//间隔，单位毫秒
     private ScheduledExecutorService mScheduledExecutorService;
 
     @Override
@@ -30,9 +30,8 @@ public class AutoClickService extends AccessibilityService {
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent != null) {
             String action = intent.getStringExtra("action");
-            Log.i(TAG, "onStartCommand: "+action);
+            Log.i(TAG, "onStartCommand: " + action);
             if (action.equals(CommonCode.ACTION_AUTO_CLICK_START)) {
-                mInterval = intent.getIntExtra("interval", 1000);
                 mPointX = intent.getIntExtra("pointX", 0);
                 mPointY = intent.getIntExtra("pointY", 0);
                 autoClickView();
@@ -54,6 +53,7 @@ public class AutoClickService extends AccessibilityService {
             public void run() {
                 Path path = new Path();
                 path.moveTo(mPointX, mPointY);
+                Log.i(TAG, "run: " + mPointX + "," + mPointY);
                 GestureDescription description = new GestureDescription.Builder().addStroke(new GestureDescription.StrokeDescription(path, 100L, 100L)).build();
                 dispatchGesture(description, new GestureResultCallback() {
                     @Override
@@ -69,7 +69,7 @@ public class AutoClickService extends AccessibilityService {
                     }
                 }, null);
             }
-        }, 0, mInterval, TimeUnit.MILLISECONDS);
+        }, 0, CommonData.interval, TimeUnit.MILLISECONDS);
     }
 
     @Override
