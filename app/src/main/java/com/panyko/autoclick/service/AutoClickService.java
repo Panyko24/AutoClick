@@ -8,17 +8,22 @@ import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 
+import com.alibaba.fastjson.JSONObject;
+import com.panyko.autoclick.pojo.Floating;
 import com.panyko.autoclick.util.CommonCode;
 import com.panyko.autoclick.util.CommonData;
 
+import java.util.HashMap;
+import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 public class AutoClickService extends AccessibilityService {
     private static final String TAG = "AutoClickService";
-    private int mPointX;
-    private int mPointY;
+
+    private List<HashMap<String,Object>> dataList;
+    private int currentPosition;
     private ScheduledExecutorService mScheduledExecutorService;
 
     @Override
@@ -32,8 +37,8 @@ public class AutoClickService extends AccessibilityService {
             String action = intent.getStringExtra("action");
             Log.i(TAG, "onStartCommand: " + action);
             if (action.equals(CommonCode.ACTION_AUTO_CLICK_START)) {
-                mPointX = intent.getIntExtra("pointX", 0);
-                mPointY = intent.getIntExtra("pointY", 0);
+                dataList= (List<HashMap<String, Object>>) intent.getSerializableExtra("data");
+                currentPosition = 0;
                 autoClickView();
             } else if (action.equals(CommonCode.ACTION_AUTO_CLICK_STOP)) {
                 if (mScheduledExecutorService != null) {
@@ -51,23 +56,26 @@ public class AutoClickService extends AccessibilityService {
         mScheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
-                Path path = new Path();
-                path.moveTo(mPointX, mPointY);
-                Log.i(TAG, "run: " + mPointX + "," + mPointY);
-                GestureDescription description = new GestureDescription.Builder().addStroke(new GestureDescription.StrokeDescription(path, 100L, 100L)).build();
-                dispatchGesture(description, new GestureResultCallback() {
-                    @Override
-                    public void onCompleted(GestureDescription gestureDescription) {
-                        super.onCompleted(gestureDescription);
-                        Log.d(TAG, "自动点击完成");
-                    }
+                if (currentPosition < dataList.size()) {
+                    HashMap<String, Object> map = dataList.get(currentPosition);
+                    currentPosition++;
+                    Path path = new Path();
+                    path.moveTo(((Integer)map.get("pointX")), (Integer)map.get("pointY"));
+                    GestureDescription description = new GestureDescription.Builder().addStroke(new GestureDescription.StrokeDescription(path, 100L, 100L)).build();
+                    dispatchGesture(description, new GestureResultCallback() {
+                        @Override
+                        public void onCompleted(GestureDescription gestureDescription) {
+                            super.onCompleted(gestureDescription);
+                            Log.d(TAG, "自动点击完成");
+                        }
 
-                    @Override
-                    public void onCancelled(GestureDescription gestureDescription) {
-                        super.onCancelled(gestureDescription);
-                        Log.d(TAG, "自动点击取消");
-                    }
-                }, null);
+                        @Override
+                        public void onCancelled(GestureDescription gestureDescription) {
+                            super.onCancelled(gestureDescription);
+                            Log.d(TAG, "自动点击取消");
+                        }
+                    }, null);
+                }
             }
         }, 0, CommonData.interval, TimeUnit.MILLISECONDS);
     }

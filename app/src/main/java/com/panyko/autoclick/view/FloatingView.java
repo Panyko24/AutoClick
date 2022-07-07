@@ -16,13 +16,16 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
+import com.alibaba.fastjson.JSONObject;
 import com.panyko.autoclick.R;
 import com.panyko.autoclick.activity.MainActivity;
 import com.panyko.autoclick.activity.SettingActivity;
 import com.panyko.autoclick.dialog.SettingDialog;
+import com.panyko.autoclick.pojo.Floating;
 import com.panyko.autoclick.service.AutoClickService;
 import com.panyko.autoclick.util.CommonCode;
 
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -48,15 +51,15 @@ public class FloatingView implements View.OnTouchListener {
     private int mHeightPixels;
     private boolean isBtnActivated;
     private static final String TAG = "FloatingView";
-
-    private Map<String, View> sightViewMap;
+    private int currentSightPosition;
+    private List<Floating> floatingList;
     private int[] sightResourceIds = new int[]{R.mipmap.icon_number_one, R.mipmap.icon_number_two, R.mipmap.icon_number_three, R.mipmap.icon_number_four, R.mipmap.icon_number_five};
 
     @SuppressLint("ClickableViewAccessibility")
     public FloatingView(Context context) {
         this.context = context;
-
-        sightViewMap = new HashMap<>();
+        currentSightPosition = 0;
+        floatingList = new ArrayList<>();
         managerView = LayoutInflater.from(context).inflate(R.layout.view_floating_manager, null);
         sightView = LayoutInflater.from(context).inflate(R.layout.view_floating_sight, null);
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
@@ -95,15 +98,20 @@ public class FloatingView implements View.OnTouchListener {
 
                 Intent intent = new Intent(context, AutoClickService.class);
                 if (isBtnActivated) {
-                    int[] location = new int[2];
-                    btnSight.getLocationOnScreen(location);
-                    int pointX = location[0] + btnSight.getMeasuredWidth() / 2;
-                    int pointY = location[1] + btnSight.getMeasuredHeight() / 2;
-
+                    List<Map<String, Object>> data = new ArrayList<>();
+                    for (Floating floating : floatingList) {
+                        int[] location = new int[2];
+                        floating.getView().getLocationOnScreen(location);
+                        int pointX = location[0] + floating.getView().getMeasuredWidth() / 2;
+                        int pointY = location[1] + floating.getView().getMeasuredHeight() / 2;
+                        Map<String, Object> map = new HashMap<>();
+                        map.put("pointX", pointX);
+                        map.put("pointY", pointY);
+                        data.add(map);
+                        floating.getView().setVisibility(View.GONE);
+                    }
                     intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_START);
-                    intent.putExtra("pointX", pointX);
-                    intent.putExtra("pointY", pointY);
-                    btnSight.setVisibility(View.GONE);
+                    intent.putExtra("data", (Serializable) data);
                 } else {
                     intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_STOP);
                     btnSight.setVisibility(View.VISIBLE);
@@ -122,17 +130,28 @@ public class FloatingView implements View.OnTouchListener {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (sightViewMap.size()<5) {
+                if (floatingList.size() < 5) {
                     mLayoutParams.x = mWidthPixels / 2;
                     mLayoutParams.y = mHeightPixels / 2;
-                    SightView sightView = new SightView(context, sightResourceIds[sightViewMap.size()]);
+                    SightView sightView = new SightView(context, sightResourceIds[floatingList.size()]);
                     mWindowManager.addView(sightView, mLayoutParams);
-                    String name = "sight_number_" + sightViewMap.size() + 1;
-                    sightViewMap.put(name, sightView);
+                    String name = "sight_number_" + (floatingList.size() + 1);
+                    Floating floating = new Floating(name, sightView, mLayoutParams.x, mLayoutParams.y);
+                    floatingList.add(floating);
                     sightView.setTag(name);
                     sightView.setOnTouchListener(FloatingView.this::onTouch);
                 }
 
+            }
+        });
+        btnReduce.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (floatingList.size() > 0) {
+                    Floating floating = floatingList.get(floatingList.size() - 1);
+                    mWindowManager.removeView(floating.getView());
+                    floatingList.remove(floatingList.size() - 1);
+                }
             }
         });
 
@@ -156,19 +175,28 @@ public class FloatingView implements View.OnTouchListener {
                     int movedY = nowY - y;
                     x = nowX;
                     y = nowY;
-                    mLayoutParams.x = ((int)event.getX()) + movedX;
-                    mLayoutParams.y = ((int)event.getY()) + movedY;
-                    if (mLayoutParams.x < 0) {
-                        mLayoutParams.x = 0;
-                    }
-                    if (mLayoutParams.y < 0) {
-                        mLayoutParams.y = 0;
+
+                    for (int i = 0; i < floatingList.size(); i++) {
+                        Floating floating = floatingList.get(i);
+                        if (floating.getName().equals(v.getTag().toString())) {
+                            floating.setX(floating.getX() + movedX);
+                            floating.setY(floating.getY() + movedY);
+                            Log.i(TAG, "onTouch: " + floating.getX());
+                            Log.i(TAG, "onTouch: " + floating.getY());
+                            floatingList.set(i, floating);
+                            mLayoutParams.x = floating.getX();
+                            mLayoutParams.y = floating.getY();
+                            if (mLayoutParams.x < 0) {
+                                mLayoutParams.x = 0;
+                            }
+                            if (mLayoutParams.y < 0) {
+                                mLayoutParams.y = 0;
+                            }
+                            mWindowManager.updateViewLayout(floating.getView(), mLayoutParams);
+
+                        }
                     }
 
-                    View view = sightViewMap.get(v.getTag().toString());
-                    if (view!=null){
-                        mWindowManager.updateViewLayout(view, mLayoutParams);
-                    }
                     break;
             }
         }
@@ -197,7 +225,13 @@ public class FloatingView implements View.OnTouchListener {
             intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_STOP);
             context.startService(intent);
             mWindowManager.removeView(managerView);
-            mWindowManager.removeView(sightView);
+            if (floatingList.size() > 0) {
+                for (int i = floatingList.size() - 1; i >= 0; i--) {
+                    Floating floating = floatingList.get(i);
+                    mWindowManager.removeView(floating.getView());
+                    floatingList.remove(i);
+                }
+            }
             mIsShow = false;
         }
     }
