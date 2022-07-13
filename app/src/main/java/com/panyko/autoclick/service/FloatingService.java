@@ -17,10 +17,11 @@ import com.panyko.autoclick.view.FloatingView;
 public class FloatingService extends Service {
     private FloatingView mFloatingView;
     private static final String TAG = "FloatingService";
+
     @Override
     public void onCreate() {
         super.onCreate();
-        mFloatingView = new FloatingView(this);
+        mFloatingView = FloatingView.getInstance(this);
     }
 
     @Nullable

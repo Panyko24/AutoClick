@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
+import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -36,7 +37,6 @@ public class FloatingView implements View.OnTouchListener {
     //private View view;
     private ImageButton btnAutoClick;//自动点击开关按钮
     private ImageButton btnSetting;
-    private ImageButton btnSight;//瞄准点
     private ImageButton btnAdd;
     private ImageButton btnReduce;
     private WindowManager mWindowManager;//悬浮窗视图管理器
@@ -54,9 +54,21 @@ public class FloatingView implements View.OnTouchListener {
     private int currentSightPosition;
     private List<Floating> floatingList;
     private int[] sightResourceIds = new int[]{R.mipmap.icon_number_one, R.mipmap.icon_number_two, R.mipmap.icon_number_three, R.mipmap.icon_number_four, R.mipmap.icon_number_five};
+    private static FloatingView instance;
+
+    public static FloatingView getInstance(Context context) {
+        if (instance == null) {
+            synchronized (FloatingView.class) {
+                if (instance == null) {
+                    instance = new FloatingView(context);
+                }
+            }
+        }
+        return instance;
+    }
 
     @SuppressLint("ClickableViewAccessibility")
-    public FloatingView(Context context) {
+    private FloatingView(Context context) {
         this.context = context;
         currentSightPosition = 0;
         floatingList = new ArrayList<>();
@@ -85,16 +97,12 @@ public class FloatingView implements View.OnTouchListener {
         btnSetting = managerView.findViewById(R.id.btn_setting);
         btnAdd = managerView.findViewById(R.id.btn_add);
         btnReduce = managerView.findViewById(R.id.btn_reduce);
-        btnSight = sightView.findViewById(R.id.btn_sight);
-        btnSight.setTag("sight");
-        btnSight.setOnTouchListener(this);
 
         btnAutoClick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 isBtnActivated = !isBtnActivated;
                 btnAutoClick.setActivated(isBtnActivated);
-                btnSight.setActivated(isBtnActivated);
 
                 Intent intent = new Intent(context, AutoClickService.class);
                 if (isBtnActivated) {
@@ -102,8 +110,10 @@ public class FloatingView implements View.OnTouchListener {
                     for (Floating floating : floatingList) {
                         int[] location = new int[2];
                         floating.getView().getLocationOnScreen(location);
-                        int pointX = location[0] + floating.getView().getMeasuredWidth() / 2;
-                        int pointY = location[1] + floating.getView().getMeasuredHeight() / 2;
+                        int pointX = location[0] + (floating.getView().getMeasuredWidth() / 2);
+                        int pointY = location[1] + (floating.getView().getMeasuredHeight() / 2);
+                        Log.i(TAG, "pointX: " + pointX);
+                        Log.i(TAG, "pointY: " + pointY);
                         Map<String, Object> map = new HashMap<>();
                         map.put("pointX", pointX);
                         map.put("pointY", pointY);
@@ -114,7 +124,12 @@ public class FloatingView implements View.OnTouchListener {
                     intent.putExtra("data", (Serializable) data);
                 } else {
                     intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_STOP);
-                    btnSight.setVisibility(View.VISIBLE);
+                    if (floatingList.size() > 0) {
+                        for (int i = floatingList.size() - 1; i >= 0; i--) {
+                            Floating floating = floatingList.get(i);
+                            floating.getView().setVisibility(View.VISIBLE);
+                        }
+                    }
                 }
                 context.startService(intent);
             }
@@ -225,6 +240,8 @@ public class FloatingView implements View.OnTouchListener {
             intent.putExtra("action", CommonCode.ACTION_AUTO_CLICK_STOP);
             context.startService(intent);
             mWindowManager.removeView(managerView);
+            isBtnActivated = false;
+            btnAutoClick.setActivated(isBtnActivated);
             if (floatingList.size() > 0) {
                 for (int i = floatingList.size() - 1; i >= 0; i--) {
                     Floating floating = floatingList.get(i);
@@ -235,6 +252,4 @@ public class FloatingView implements View.OnTouchListener {
             mIsShow = false;
         }
     }
-
-
 }
