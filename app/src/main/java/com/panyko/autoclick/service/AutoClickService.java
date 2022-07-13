@@ -8,8 +8,10 @@ import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
+import android.view.accessibility.AccessibilityWindowInfo;
 
 import com.alibaba.fastjson.JSONObject;
+import com.panyko.autoclick.enums.TypeEnum;
 import com.panyko.autoclick.pojo.Floating;
 import com.panyko.autoclick.util.CommonCode;
 import com.panyko.autoclick.util.CommonData;
@@ -42,10 +44,14 @@ public class AutoClickService extends AccessibilityService {
             if (action.equals(CommonCode.ACTION_AUTO_CLICK_START)) {
                 dataList = (List<HashMap<String, Object>>) intent.getSerializableExtra("data");
                 currentPosition = 0;
-                autoClickView1();
+                if (CommonData.type == TypeEnum.TYPE_COMMON.getCode()) {
+                    autoClickViewByCommon();
+                } else if (CommonData.type == TypeEnum.TYPE_GGS_LOGIN.getCode()) {
+                    autoClickViewByGGSLogin();
+                }
             } else if (action.equals(CommonCode.ACTION_AUTO_CLICK_STOP)) {
                 if (mScheduledExecutorService != null) {
-                    mScheduledExecutorService.shutdownNow();
+                    mScheduledExecutorService.shutdown();
                     mScheduledExecutorService = null;
                 }
             }
@@ -54,12 +60,16 @@ public class AutoClickService extends AccessibilityService {
         return super.onStartCommand(intent, flags, startId);
     }
 
-    private void autoClickView() {
+    /**
+     * 普通模式下自动点击
+     */
+    private void autoClickViewByCommon() {
         mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
         executeCount = 0;
         mScheduledExecutorService.scheduleAtFixedRate(new Runnable() {
             @Override
             public void run() {
+
                 if (CommonData.count > 0 && executeCount >= CommonData.count) {
                     return;
                 }
@@ -90,20 +100,44 @@ public class AutoClickService extends AccessibilityService {
         }, CommonData.interval, CommonData.interval, TimeUnit.MILLISECONDS);
     }
 
-    private void autoClickView1() {
-        List<AccessibilityNodeInfo> nodeInfoList = getRootInActiveWindow().findAccessibilityNodeInfosByText("个人登录");
-        if (nodeInfoList != null && nodeInfoList.size() > 0) {
-            for (AccessibilityNodeInfo nodeInfo : nodeInfoList) {
-                Log.i(TAG, "autoClickView1: "+nodeInfo.getClassName());
-                Log.i(TAG, "autoClickView1: "+nodeInfo.isEnabled());
-                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
-                if (nodeInfo.getClassName().equals("android.widget.TextView")&&nodeInfo.isEnabled()){
+    /**
+     * 贵高速登录模式下自动点击
+     */
+    private void autoClickViewByGGSLogin() {
+        mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        executeCount = 0;
+        mScheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                Log.i(TAG, "run: ");
 
+                List<AccessibilityNodeInfo> nodeInfoList1 = getRootInActiveWindow().findAccessibilityNodeInfosByText("允许");
+                if (nodeInfoList1 != null && nodeInfoList1.size() > 0) {
+                    for (AccessibilityNodeInfo nodeInfo : nodeInfoList1) {
+                        if (nodeInfo.getClassName().toString().equals("android.widget.Button")) {
+                            nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                        }
+                    }
+                } else {
+                    List<AccessibilityNodeInfo> nodeInfoList2 = getRootInActiveWindow().findAccessibilityNodeInfosByText("个人登录");
+                    if (nodeInfoList2 != null && nodeInfoList2.size() > 0) {
+                        for (AccessibilityNodeInfo nodeInfo : nodeInfoList2) {
+                            if (nodeInfo.getClassName().toString().equals("android.widget.TextView")) {
+                                HashMap<String, Object> map = dataList.get(0);
+                                Path path = new Path();
+                                path.moveTo(((Integer) map.get("pointX")), (Integer) map.get("pointY"));
+                                GestureDescription description = new GestureDescription.Builder().addStroke(new GestureDescription.StrokeDescription(path, 100L, 100L)).build();
+                                dispatchGesture(description, null, null);
+                            }
+                        }
+
+                    }
                 }
             }
+        }, CommonData.interval, CommonData.interval, TimeUnit.MILLISECONDS);
 
-        }
     }
+
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {

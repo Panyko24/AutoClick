@@ -42,9 +42,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnOpenAccessibility = findViewById(R.id.btn_open_accessibility);
         btnOpenFloating = findViewById(R.id.btn_open_floating);
         btnManagerFloatingView = findViewById(R.id.btn_floating_manager);
-        TextView testView = findViewById(R.id.text_test);
-        testView.setClickable(false);
-        testView.setFocusable(false);
+
         floatingIntent = new Intent(this, FloatingService.class);
         btnOpenAccessibility.setOnClickListener(this);
         btnOpenFloating.setOnClickListener(this);
@@ -143,7 +141,4 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         return Settings.canDrawOverlays(this);
     }
 
-    public void test(View view) {
-        Toast.makeText(this, "哈哈哈哈", Toast.LENGTH_SHORT).show();
-    }
 }

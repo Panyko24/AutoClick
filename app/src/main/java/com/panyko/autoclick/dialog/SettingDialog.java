@@ -2,19 +2,25 @@ package com.panyko.autoclick.dialog;
 
 
 import android.content.Context;
+import android.content.Intent;
 import android.os.Build;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.Toast;
 
 
 import androidx.appcompat.app.AlertDialog;
 
 import com.panyko.autoclick.R;
+import com.panyko.autoclick.enums.TypeEnum;
+import com.panyko.autoclick.util.CommonCode;
 import com.panyko.autoclick.util.CommonData;
+import com.panyko.autoclick.view.FloatingView;
 
 public class SettingDialog {
     private Context mContext;
@@ -22,8 +28,13 @@ public class SettingDialog {
     private Button btnSave;
     private EditText editTime;
     private EditText editCount;
+    private RadioGroup rgType;
+    private RadioButton rbCommon;
+    private RadioButton rbGGSLogin;
+    private RadioButton rbGGSOrder;
     private AlertDialog mAlertDialog;
     private static SettingDialog instance;
+    private Integer type;
 
     public static SettingDialog getInstance() {
         if (instance == null) {
@@ -47,6 +58,10 @@ public class SettingDialog {
         btnSave = mView.findViewById(R.id.btn_save);
         editTime = mView.findViewById(R.id.edit_time);
         editCount = mView.findViewById(R.id.edit_count);
+        rgType = mView.findViewById(R.id.rg_type);
+        rbCommon = mView.findViewById(R.id.rb_common);
+        rbGGSLogin = mView.findViewById(R.id.rb_ggs_login);
+        rbGGSOrder = mView.findViewById(R.id.rb_ggs_order);
         builder.setView(mView);
         mAlertDialog = builder.create();
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -64,8 +79,22 @@ public class SettingDialog {
                 } else {
                     CommonData.count = Integer.valueOf(count);
                 }
+                CommonData.type = type;
+                FloatingView.getInstance(mContext).clearSightView();
                 Toast.makeText(mContext, "保存成功", Toast.LENGTH_SHORT).show();
                 close();
+            }
+        });
+        rgType.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
+            @Override
+            public void onCheckedChanged(RadioGroup radioGroup, int i) {
+                if (i == R.id.rb_common) {
+                    type = TypeEnum.TYPE_COMMON.getCode();
+                } else if (i == R.id.rb_ggs_login) {
+                    type = TypeEnum.TYPE_GGS_LOGIN.getCode();
+                } else if (i == R.id.rb_ggs_order) {
+                    type = TypeEnum.TYPE_GGS_ORDER.getCode();
+                }
             }
         });
     }
@@ -78,6 +107,16 @@ public class SettingDialog {
                 mAlertDialog.getWindow().setType(WindowManager.LayoutParams.TYPE_SYSTEM_ALERT);
             }
             mAlertDialog.show();
+            type = CommonData.type;
+            if (type == TypeEnum.TYPE_GGS_LOGIN.getCode()) {
+                rbGGSLogin.setChecked(true);
+            } else if (type == TypeEnum.TYPE_GGS_ORDER.getCode()) {
+                rbGGSOrder.setChecked(true);
+            } else {
+                rbCommon.setChecked(true);
+            }
+            editCount.setText(String.valueOf(CommonData.count));
+            editTime.setText(String.valueOf(CommonData.interval));
         }
     }
 

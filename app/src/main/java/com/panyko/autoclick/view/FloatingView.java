@@ -22,9 +22,11 @@ import com.panyko.autoclick.R;
 import com.panyko.autoclick.activity.MainActivity;
 import com.panyko.autoclick.activity.SettingActivity;
 import com.panyko.autoclick.dialog.SettingDialog;
+import com.panyko.autoclick.enums.TypeEnum;
 import com.panyko.autoclick.pojo.Floating;
 import com.panyko.autoclick.service.AutoClickService;
 import com.panyko.autoclick.util.CommonCode;
+import com.panyko.autoclick.util.CommonData;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -46,7 +48,6 @@ public class FloatingView implements View.OnTouchListener {
     private int y;
     private boolean mIsShow;
     private View managerView;
-    private View sightView;
     private int mWidthPixels;
     private int mHeightPixels;
     private boolean isBtnActivated;
@@ -73,7 +74,6 @@ public class FloatingView implements View.OnTouchListener {
         currentSightPosition = 0;
         floatingList = new ArrayList<>();
         managerView = LayoutInflater.from(context).inflate(R.layout.view_floating_manager, null);
-        sightView = LayoutInflater.from(context).inflate(R.layout.view_floating_sight, null);
         mWindowManager = (WindowManager) context.getSystemService(Context.WINDOW_SERVICE);
 
         DisplayMetrics outMetrics = new DisplayMetrics();
@@ -101,6 +101,10 @@ public class FloatingView implements View.OnTouchListener {
         btnAutoClick.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (floatingList == null || floatingList.size() == 0) {
+                    Toast.makeText(context, "您还没有添加任何坐标点呢", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 isBtnActivated = !isBtnActivated;
                 btnAutoClick.setActivated(isBtnActivated);
 
@@ -145,16 +149,34 @@ public class FloatingView implements View.OnTouchListener {
         btnAdd.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (floatingList.size() < 5) {
-                    mLayoutParams.x = mWidthPixels / 2;
-                    mLayoutParams.y = mHeightPixels / 2;
-                    SightView sightView = new SightView(context, sightResourceIds[floatingList.size()]);
-                    mWindowManager.addView(sightView, mLayoutParams);
-                    String name = "sight_number_" + (floatingList.size() + 1);
-                    Floating floating = new Floating(name, sightView, mLayoutParams.x, mLayoutParams.y);
-                    floatingList.add(floating);
-                    sightView.setTag(name);
-                    sightView.setOnTouchListener(FloatingView.this::onTouch);
+                if (CommonData.type == TypeEnum.TYPE_GGS_LOGIN.getCode()) {
+                    if (floatingList.size() < 1) {
+                        mLayoutParams.x = mWidthPixels / 2;
+                        mLayoutParams.y = mHeightPixels / 2;
+                        SightView sightView = new SightView(context, sightResourceIds[floatingList.size()]);
+                        mWindowManager.addView(sightView, mLayoutParams);
+                        String name = "sight_number_" + (floatingList.size() + 1);
+                        Floating floating = new Floating(name, sightView, mLayoutParams.x, mLayoutParams.y);
+                        floatingList.add(floating);
+                        sightView.setTag(name);
+                        sightView.setOnTouchListener(FloatingView.this::onTouch);
+                    } else {
+                        Toast.makeText(context, "贵高速登录模式下只能添加一个坐标点", Toast.LENGTH_SHORT).show();
+                    }
+                } else {
+                    if (floatingList.size() < 5) {
+                        mLayoutParams.x = mWidthPixels / 2;
+                        mLayoutParams.y = mHeightPixels / 2;
+                        SightView sightView = new SightView(context, sightResourceIds[floatingList.size()]);
+                        mWindowManager.addView(sightView, mLayoutParams);
+                        String name = "sight_number_" + (floatingList.size() + 1);
+                        Floating floating = new Floating(name, sightView, mLayoutParams.x, mLayoutParams.y);
+                        floatingList.add(floating);
+                        sightView.setTag(name);
+                        sightView.setOnTouchListener(FloatingView.this::onTouch);
+                    } else {
+                        Toast.makeText(context, "普通登录模式下最多只能添加五个坐标点", Toast.LENGTH_SHORT).show();
+                    }
                 }
 
             }
@@ -250,6 +272,16 @@ public class FloatingView implements View.OnTouchListener {
                 }
             }
             mIsShow = false;
+        }
+    }
+
+    public void clearSightView(){
+        if (floatingList.size() > 0) {
+            for (int i = floatingList.size() - 1; i >= 0; i--) {
+                Floating floating = floatingList.get(i);
+                mWindowManager.removeView(floating.getView());
+                floatingList.remove(i);
+            }
         }
     }
 }

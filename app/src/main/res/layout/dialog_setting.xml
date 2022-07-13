@@ -10,6 +10,41 @@
         android:layout_height="wrap_content"
         android:layout_marginStart="@dimen/dp_10"
         android:layout_marginTop="@dimen/dp_10"
+        android:text="模式选择"
+        android:textColor="#000000"
+        android:textSize="@dimen/sp_20" />
+
+    <RadioGroup
+        android:id="@+id/rg_type"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <RadioButton
+            android:id="@+id/rb_common"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:checked="true"
+            android:text="普通模式" />
+
+        <RadioButton
+            android:id="@+id/rb_ggs_login"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="贵高速登录模式" />
+
+        <RadioButton
+            android:id="@+id/rb_ggs_order"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="贵高速下单模式" />
+    </RadioGroup>
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="@dimen/dp_10"
+        android:layout_marginTop="@dimen/dp_10"
         android:text="参数配置"
         android:textColor="#000000"
         android:textSize="@dimen/sp_20" />
@@ -30,13 +65,13 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:inputType="number"
             android:id="@+id/edit_time"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:inputType="number"
+            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/text_period"
             app:layout_constraintRight_toLeftOf="@id/text_time"
-            app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
 
         <TextView
@@ -50,6 +85,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
@@ -65,10 +101,10 @@
             app:layout_constraintTop_toTopOf="parent" />
 
         <EditText
-            android:inputType="number"
             android:id="@+id/edit_count"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
+            android:inputType="number"
             app:layout_constraintBottom_toBottomOf="@+id/text_count"
             app:layout_constraintLeft_toRightOf="@+id/text_count"
             app:layout_constraintRight_toLeftOf="@id/text_count_unit"
@@ -83,15 +119,18 @@
             android:textSize="@dimen/sp_18"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toTopOf="parent" />
+
         <TextView
-            app:layout_constraintTop_toBottomOf="@+id/text_count"
-            app:layout_constraintLeft_toLeftOf="parent"
-            android:text="0次表示无限循环"
-            android:layout_marginTop="@dimen/dp_10"
-            android:textSize="@dimen/sp_16"
             android:layout_width="wrap_content"
-            android:layout_height="wrap_content"/>
+            android:layout_height="wrap_content"
+            android:layout_marginTop="@dimen/dp_10"
+            android:text="0次表示无限循环"
+            android:textSize="@dimen/sp_16"
+            app:layout_constraintLeft_toLeftOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/text_count" />
     </androidx.constraintlayout.widget.ConstraintLayout>
+
+
     <Button
         android:id="@+id/btn_save"
         android:layout_width="wrap_content"

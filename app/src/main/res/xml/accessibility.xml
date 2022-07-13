@@ -2,6 +2,7 @@
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
     android:accessibilityEventTypes="typeAllMask"
     android:accessibilityFeedbackType="feedbackAllMask"
+    android:accessibilityFlags="flagDefault|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
     android:canPerformGestures="true"
     android:settingsActivity="com.panyko.autoclick.activity.SettingActivity"
     android:canRetrieveWindowContent="true"
