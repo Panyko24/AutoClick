@@ -7,6 +7,7 @@ import android.graphics.Path;
 import android.os.Build;
 import android.util.Log;
 import android.view.accessibility.AccessibilityEvent;
+import android.view.accessibility.AccessibilityNodeInfo;
 
 import com.alibaba.fastjson.JSONObject;
 import com.panyko.autoclick.pojo.Floating;
@@ -41,7 +42,7 @@ public class AutoClickService extends AccessibilityService {
             if (action.equals(CommonCode.ACTION_AUTO_CLICK_START)) {
                 dataList = (List<HashMap<String, Object>>) intent.getSerializableExtra("data");
                 currentPosition = 0;
-                autoClickView();
+                autoClickView1();
             } else if (action.equals(CommonCode.ACTION_AUTO_CLICK_STOP)) {
                 if (mScheduledExecutorService != null) {
                     mScheduledExecutorService.shutdownNow();
@@ -87,6 +88,21 @@ public class AutoClickService extends AccessibilityService {
 
             }
         }, CommonData.interval, CommonData.interval, TimeUnit.MILLISECONDS);
+    }
+
+    private void autoClickView1() {
+        List<AccessibilityNodeInfo> nodeInfoList = getRootInActiveWindow().findAccessibilityNodeInfosByText("个人登录");
+        if (nodeInfoList != null && nodeInfoList.size() > 0) {
+            for (AccessibilityNodeInfo nodeInfo : nodeInfoList) {
+                Log.i(TAG, "autoClickView1: "+nodeInfo.getClassName());
+                Log.i(TAG, "autoClickView1: "+nodeInfo.isEnabled());
+                nodeInfo.performAction(AccessibilityNodeInfo.ACTION_CLICK);
+                if (nodeInfo.getClassName().equals("android.widget.TextView")&&nodeInfo.isEnabled()){
+
+                }
+            }
+
+        }
     }
 
     @Override

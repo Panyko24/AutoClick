@@ -16,6 +16,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.panyko.autoclick.R;
@@ -41,6 +42,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         btnOpenAccessibility = findViewById(R.id.btn_open_accessibility);
         btnOpenFloating = findViewById(R.id.btn_open_floating);
         btnManagerFloatingView = findViewById(R.id.btn_floating_manager);
+        TextView testView = findViewById(R.id.text_test);
+        testView.setClickable(false);
+        testView.setFocusable(false);
         floatingIntent = new Intent(this, FloatingService.class);
         btnOpenAccessibility.setOnClickListener(this);
         btnOpenFloating.setOnClickListener(this);
@@ -137,5 +141,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
      */
     private boolean checkFloatingPermission() {
         return Settings.canDrawOverlays(this);
+    }
+
+    public void test(View view) {
+        Toast.makeText(this, "哈哈哈哈", Toast.LENGTH_SHORT).show();
     }
 }
