@@ -4,9 +4,13 @@ package com.panyko.autoclick.dialog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Build;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RadioButton;
@@ -31,7 +35,6 @@ public class SettingDialog {
     private RadioGroup rgType;
     private RadioButton rbCommon;
     private RadioButton rbGGSLogin;
-    private RadioButton rbGGSOrder;
     private AlertDialog mAlertDialog;
     private static SettingDialog instance;
     private Integer type;
@@ -61,7 +64,6 @@ public class SettingDialog {
         rgType = mView.findViewById(R.id.rg_type);
         rbCommon = mView.findViewById(R.id.rb_common);
         rbGGSLogin = mView.findViewById(R.id.rb_ggs_login);
-        rbGGSOrder = mView.findViewById(R.id.rb_ggs_order);
         builder.setView(mView);
         mAlertDialog = builder.create();
         btnSave.setOnClickListener(new View.OnClickListener() {
@@ -92,9 +94,14 @@ public class SettingDialog {
                     type = TypeEnum.TYPE_COMMON.getCode();
                 } else if (i == R.id.rb_ggs_login) {
                     type = TypeEnum.TYPE_GGS_LOGIN.getCode();
-                } else if (i == R.id.rb_ggs_order) {
-                    type = TypeEnum.TYPE_GGS_ORDER.getCode();
                 }
+            }
+        });
+        mView.setOnTouchListener(new View.OnTouchListener() {
+            @Override
+            public boolean onTouch(View v, MotionEvent event) {
+                hideKeyboard(v.getWindowToken());
+                return false;
             }
         });
     }
@@ -110,9 +117,7 @@ public class SettingDialog {
             type = CommonData.type;
             if (type == TypeEnum.TYPE_GGS_LOGIN.getCode()) {
                 rbGGSLogin.setChecked(true);
-            } else if (type == TypeEnum.TYPE_GGS_ORDER.getCode()) {
-                rbGGSOrder.setChecked(true);
-            } else {
+            }  else {
                 rbCommon.setChecked(true);
             }
             editCount.setText(String.valueOf(CommonData.count));
@@ -126,4 +131,16 @@ public class SettingDialog {
         }
     }
 
+
+    /**
+     * 获取InputMethodManager，隐藏软键盘
+     *
+     * @param token
+     */
+    private void hideKeyboard(IBinder token) {
+        if (token != null) {
+            InputMethodManager im = (InputMethodManager) mContext.getSystemService(Context.INPUT_METHOD_SERVICE);
+            im.hideSoftInputFromWindow(token, InputMethodManager.HIDE_NOT_ALWAYS);
+        }
+    }
 }

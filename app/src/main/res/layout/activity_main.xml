@@ -6,36 +6,36 @@
     android:layout_height="match_parent"
     tools:context=".activity.MainActivity">
 
-    <Button
-        android:layout_marginTop="@dimen/dp_20"
-        android:id="@+id/btn_open_accessibility"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        android:text="开启无障碍服务"
-        app:layout_constraintLeft_toLeftOf="parent"
-        app:layout_constraintRight_toLeftOf="@+id/btn_open_floating"
-        app:layout_constraintTop_toTopOf="parent" />
 
     <Button
-        android:layout_marginTop="@dimen/dp_20"
         android:id="@+id/btn_open_floating"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-
+        android:layout_marginTop="@dimen/dp_20"
         android:text="开启悬浮窗权限"
-        app:layout_constraintLeft_toRightOf="@+id/btn_open_accessibility"
+        app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <Button
+        android:id="@+id/btn_open_accessibility"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/dp_20"
+
+        android:text="开启无障碍服务"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/btn_open_floating" />
+
+    <Button
         android:id="@+id/btn_floating_manager"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="开启普通悬浮窗"
+        android:layout_marginTop="@dimen/dp_20"
+        android:text="开启悬浮窗"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintLeft_toLeftOf="parent"
         app:layout_constraintRight_toRightOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/btn_open_accessibility" />
-
+        app:layout_constraintTop_toTopOf="parent" />
 </androidx.constraintlayout.widget.ConstraintLayout>

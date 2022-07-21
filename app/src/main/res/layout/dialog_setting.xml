@@ -33,11 +33,6 @@
             android:layout_height="wrap_content"
             android:text="贵高速登录模式" />
 
-        <RadioButton
-            android:id="@+id/rb_ggs_order"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="贵高速下单模式" />
     </RadioGroup>
 
     <TextView

@@ -2,8 +2,7 @@ package com.panyko.autoclick.enums;
 
 public enum  TypeEnum {
     TYPE_COMMON(0,"TYPE_COMMON"),
-    TYPE_GGS_LOGIN(1,"TYPE_GGS_LOGIN"),
-    TYPE_GGS_ORDER(2,"TYPE_GGS_ORDER");
+    TYPE_GGS_LOGIN(1,"TYPE_GGS_LOGIN");
     private int code;
     private String msg;
 

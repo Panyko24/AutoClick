@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.PixelFormat;
 import android.os.Build;
-import android.os.Handler;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Gravity;
@@ -17,10 +16,8 @@ import android.widget.ImageButton;
 import android.widget.LinearLayout;
 import android.widget.Toast;
 
-import com.alibaba.fastjson.JSONObject;
 import com.panyko.autoclick.R;
 import com.panyko.autoclick.activity.MainActivity;
-import com.panyko.autoclick.activity.SettingActivity;
 import com.panyko.autoclick.dialog.SettingDialog;
 import com.panyko.autoclick.enums.TypeEnum;
 import com.panyko.autoclick.pojo.Floating;
@@ -142,6 +139,10 @@ public class FloatingView implements View.OnTouchListener {
         btnSetting.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                if (isBtnActivated){
+                    Toast.makeText(context, "请先停止运行", Toast.LENGTH_SHORT).show();
+                    return;
+                }
                 SettingDialog.getInstance().show();
             }
         });
