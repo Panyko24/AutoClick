@@ -1,14 +1,17 @@
 package com.panyko.autoclick.service;
 
 import android.accessibilityservice.AccessibilityService;
+import android.accessibilityservice.AccessibilityServiceInfo;
 import android.accessibilityservice.GestureDescription;
 import android.content.Intent;
 import android.graphics.Path;
 import android.os.Build;
 import android.util.Log;
+import android.util.SparseArray;
 import android.view.accessibility.AccessibilityEvent;
 import android.view.accessibility.AccessibilityNodeInfo;
 import android.view.accessibility.AccessibilityWindowInfo;
+import android.widget.Toast;
 
 import com.alibaba.fastjson.JSONObject;
 import com.panyko.autoclick.enums.TypeEnum;
@@ -109,9 +112,8 @@ public class AutoClickService extends AccessibilityService {
         mScheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
             @Override
             public void run() {
-                Log.i(TAG, "run: ");
 
-                List<AccessibilityNodeInfo> nodeInfoList1 = getRootInActiveWindow().findAccessibilityNodeInfosByText("允许");
+                List<AccessibilityNodeInfo> nodeInfoList1 =getRootInActiveWindow().findAccessibilityNodeInfosByText("允许");
                 if (nodeInfoList1 != null && nodeInfoList1.size() > 0) {
                     for (AccessibilityNodeInfo nodeInfo : nodeInfoList1) {
                         if (nodeInfo.getClassName().toString().equals("android.widget.Button")) {
@@ -138,6 +140,27 @@ public class AutoClickService extends AccessibilityService {
 
     }
 
+
+    private void autoClickViewTest(){
+        mScheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
+        executeCount = 0;
+        mScheduledExecutorService.scheduleWithFixedDelay(new Runnable() {
+            @Override
+            public void run() {
+                List<AccessibilityWindowInfo> windows = getWindows();
+                for (AccessibilityWindowInfo window : windows) {
+                    List<AccessibilityNodeInfo> nodeInfoList = window.getRoot().findAccessibilityNodeInfosByViewId("com.moutai.mall:id/btVerifyCode");
+                    if (nodeInfoList != null && nodeInfoList.size() > 0) {
+                        for (AccessibilityNodeInfo nodeInfo : nodeInfoList) {
+                            Log.i(TAG, "run: "+nodeInfo.getText());
+                        }
+                    }
+                }
+
+            }
+        }, CommonData.interval, CommonData.interval, TimeUnit.MILLISECONDS);
+
+    }
 
     @Override
     public void onAccessibilityEvent(AccessibilityEvent event) {

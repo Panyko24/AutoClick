@@ -37,7 +37,7 @@ public class SightView extends View {
     @Override
     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
         super.onMeasure(widthMeasureSpec, heightMeasureSpec);
-        setMeasuredDimension(64, 64);
+        setMeasuredDimension(bitmap.getWidth(), bitmap.getHeight());
     }
 
 }
